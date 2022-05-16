@@ -50,12 +50,10 @@ passport.serializeUser(authentication.serializeUser);
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/', apiRouter);
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-	next(httpErrors(404));
+app.all('/', (req, res, next) => {
+	res.redirect(301, '/api/posts');
 });
+app.use('/api', apiRouter);
 
 app.use((req, res, next) => {
 	res
