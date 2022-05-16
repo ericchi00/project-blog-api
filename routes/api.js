@@ -7,7 +7,7 @@ import {
 
 const router = Router();
 
-router.get('/', getAllPosts);
+router.get('/posts', getAllPosts);
 
 router.get('/posts/:id', getPost);
 
