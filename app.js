@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import path from 'path';
 import httpErrors from 'http-errors';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -9,11 +8,15 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import helmet from 'helmet';
 import compression from 'compression';
+import { Strategy as LocalStrategy } from 'passport-local';
+import bcrypt from 'bcryptjs';
 import passport from 'passport';
-import __dirname from './dirname.js';
+
+import User from './models/user.js';
 
 import apiRouter from './routes/api.js';
-import * as authentication from './modules/authentication.js';
+import authRouter from './routes/auth.js';
+import registerRouter from './routes/register.js';
 
 const app = express();
 
@@ -21,9 +24,6 @@ const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(cors());
@@ -38,22 +38,64 @@ app.use(
 	})
 );
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'views')));
 
 app.use(helmet());
 app.use(compression());
 
-passport.use(authentication.local);
-passport.deserializeUser(authentication.deserializeUser);
-passport.serializeUser(authentication.serializeUser);
+app.use(
+	session({
+		secret: process.env.SESSION_SECRET,
+		resave: false,
+		saveUninitialized: true,
+	})
+);
+
+passport.use(
+	new LocalStrategy(
+		{ passReqToCallback: true },
+		(req, username, password, done) => {
+			User.findOne({ username: username.trim() }, async (error, user) => {
+				if (error) {
+					return done(error);
+				}
+				if (!user) {
+					return done(null, false, {
+						message: 'Incorrect username or password',
+					});
+				}
+				try {
+					if (await bcrypt.compare(password, user.password)) {
+						return done(null, user);
+					}
+					return done(null, false, {
+						message: 'Incorrect username or password',
+					});
+				} catch (err) {
+					return done(err);
+				}
+			});
+		}
+	)
+);
+passport.serializeUser((user, done) => {
+	done(null, user.id);
+});
+passport.deserializeUser((id, done) => {
+	User.findById(id, (err, user) => {
+		done(err, user);
+	});
+});
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.urlencoded({ extended: false }));
 
 app.all('/', (req, res, next) => {
 	res.redirect(301, '/api/posts');
 });
 app.use('/api', apiRouter);
+app.use('/auth', authRouter);
+app.use('/register', registerRouter);
 
 app.use((req, res, next) => {
 	res
