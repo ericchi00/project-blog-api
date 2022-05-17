@@ -15,8 +15,7 @@ import passport from 'passport';
 import User from './models/user.js';
 
 import apiRouter from './routes/api.js';
-import authRouter from './routes/auth.js';
-import registerRouter from './routes/register.js';
+import userRouter from './routes/users.js';
 
 const app = express();
 
@@ -94,8 +93,7 @@ app.all('/', (req, res, next) => {
 	res.redirect(301, '/api/posts');
 });
 app.use('/api', apiRouter);
-app.use('/auth', authRouter);
-app.use('/register', registerRouter);
+app.use('/users', userRouter);
 
 app.use((req, res, next) => {
 	res
