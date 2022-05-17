@@ -4,9 +4,16 @@ const { Schema } = mongoose;
 
 const postSchema = new Schema(
 	{
+		username: { type: Schema.Types.ObjectId, ref: 'User' },
 		title: { type: String, required: true },
 		text: { type: String, required: true },
-		published: { type: Boolean, default: false },
+		date: { type: Date, default: Date.now },
+		comments: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: 'Comment',
+			},
+		],
 	},
 	{ timestamps: true }
 );
