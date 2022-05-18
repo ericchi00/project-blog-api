@@ -1,28 +1,24 @@
 import { Router } from 'express';
+import passport from 'passport';
 import {
 	deleteMessage,
 	getAllMessages,
 	getMessage,
+	postMessage,
 } from '../controllers/messagecontroller.js';
 
 const router = Router();
 
-router.get('/posts', getAllMessages);
+router.get('/messages', getAllMessages);
 
-router.get('/posts/:id', getMessage);
+router.get('/messages/:id', getMessage);
 
-// // create a post
-// router.post('/posts')
-// jwt.verify(req.token, process.env.JWT_TOKEN, (err, authData) => {
-// if (error) {
-// 	res.sendSTatus(403);
-// } else {
-// 	res.json({
-// 		mesage: 'post created',
-// 		authData
-// 	})
-// 	}
-// })
-router.delete('/posts/:id', deleteMessage);
+router.post(
+	'/messages',
+	passport.authenticate('jwt', { session: false }),
+	postMessage
+);
+
+router.delete('/messages/:id', deleteMessage);
 
 export default router;
