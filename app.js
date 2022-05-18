@@ -60,7 +60,7 @@ passport.use(
 			if (await bcrypt.compare(password, user.password)) {
 				return done(null, user);
 			}
-			return done(401, false), { message: 'Incorrect username or password' };
+			return done(401, false, { message: 'Incorrect username or password' });
 		} catch (error) {
 			return done(error);
 		}
@@ -112,7 +112,6 @@ app.use((err, req, res, next) => {
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-	console.log(err.message);
 	res.status(err || 500);
 	res.json(err);
 });
