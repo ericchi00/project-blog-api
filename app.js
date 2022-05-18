@@ -8,10 +8,10 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import helmet from 'helmet';
 import compression from 'compression';
+import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
-import passport from 'passport';
-
+import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt';
 import User from './models/user.js';
 
 import apiRouter from './routes/api.js';
@@ -50,32 +50,39 @@ app.use(
 );
 
 passport.use(
-	new LocalStrategy(
-		{ passReqToCallback: true },
-		(req, username, password, done) => {
-			User.findOne({ username: username.trim() }, async (error, user) => {
-				if (error) {
-					return done(error);
-				}
-				if (!user) {
-					return done(null, false, {
-						message: 'Incorrect username or password',
-					});
-				}
-				try {
-					if (await bcrypt.compare(password, user.password)) {
-						return done(null, user);
-					}
-					return done(null, false, {
-						message: 'Incorrect username or password',
-					});
-				} catch (err) {
-					return done(err);
-				}
-			});
+	new LocalStrategy(async (username, password, done) => {
+		try {
+			const user = await User.findOne({ username });
+			if (!user) {
+				return done(401, false, { message: 'Incorrect username or password' });
+			}
+
+			if (await bcrypt.compare(password, user.password)) {
+				return done(null, user);
+			}
+			return done(401, false), { message: 'Incorrect username or password' };
+		} catch (error) {
+			return done(error);
+		}
+	})
+);
+
+passport.use(
+	new JWTStrategy(
+		{
+			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+			secretOrKey: process.env.JWT_TOKEN,
+		},
+		async (token, done) => {
+			try {
+				return done(null, token.user);
+			} catch (error) {
+				return done(error);
+			}
 		}
 	)
 );
+
 passport.serializeUser((user, done) => {
 	done(null, user.id);
 });
@@ -96,14 +103,18 @@ app.use('/api', apiRouter);
 app.use('/users', userRouter);
 
 app.use((req, res, next) => {
-	res
-		.status(404)
-		.json({ message: "We couldn't find what you were looking for 😞" });
+	next(httpErrors(404));
 });
 
+// error handler
 app.use((err, req, res, next) => {
-	console.error(err.stack);
-	res.status(500).json(err);
+	// set locals, only providing error in development
+	res.locals.message = err.message;
+	res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+	console.log(err.message);
+	res.status(err || 500);
+	res.json(err);
 });
 
 export default app;
