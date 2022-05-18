@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
@@ -49,26 +50,43 @@ const registerPost = [
 	},
 ];
 
-const loginPost = (req, res, next) => {
-	passport.authenticate('local', { session: false }, (err, user, info) => {
-		if (err || !user) {
-			return res.status(400).json({
-				message: 'Something is not right',
-				user,
-			});
-		}
-
-		req.login(user, { session: false }, (error) => {
-			if (error) {
-				res.send(error);
+const loginPost = async (req, res, next) => {
+	passport.authenticate('local', async (err, user, info) => {
+		try {
+			if (err || !user) {
+				return next(err);
 			}
 
-			// generate a signed son web token with the contents of user object and return it in the response
-
-			const token = jwt.sign(user, 'your_jwt_secret');
-			return res.json({ user, token });
-		});
-	})(req, res);
+			req.login(user, { session: false }, (error) => {
+				if (error) {
+					return next(error);
+				}
+				const token = jwt.sign({ user }, process.env.JWT_TOKEN, {
+					expiresIn: '15m',
+				});
+				return res.json({
+					authState: {
+						username: user.username,
+						id: user._id,
+					},
+					expiresIn: 15,
+					token,
+				});
+			});
+		} catch (error) {
+			return next(error);
+		}
+	})(req, res, next);
 };
 
-export { registerPost, loginPost };
+const logoutPost = (req, res, next) => {
+	try {
+		req.logout();
+		return res.json({ message: 'Logout successful.' });
+	} catch (error) {
+		res.json({ message: 'Logout error. ' });
+		return next(error);
+	}
+};
+
+export { registerPost, loginPost, logoutPost };
