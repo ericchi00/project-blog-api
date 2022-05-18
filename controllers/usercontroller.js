@@ -82,9 +82,9 @@ const loginPost = async (req, res, next) => {
 const logoutPost = (req, res, next) => {
 	try {
 		req.logout();
-		return res.json({ message: 'Logout successful.' });
+		return res.json({ message: 'Logout successful' });
 	} catch (error) {
-		res.json({ message: 'Logout error. ' });
+		res.json({ message: 'An error has occurred.' });
 		return next(error);
 	}
 };
