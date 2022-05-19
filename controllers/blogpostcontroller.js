@@ -1,21 +1,20 @@
 import sanitizeHtml from 'sanitize-html';
-import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
-import Message from '../models/message.js';
+import BlogPost from '../models/blogpost.js';
 import Comment from '../models/comment.js';
 
-const getAllMessages = async (req, res, next) => {
+const getAllBlogPosts = async (req, res, next) => {
 	try {
-		const list = await Message.find().populate('username', 'username').exec();
+		const list = await BlogPost.find().populate('username', 'username').exec();
 		res.json(list);
 	} catch (error) {
 		next(error);
 	}
 };
 
-const getMessage = async (req, res, next) => {
+const getBlogPost = async (req, res, next) => {
 	try {
-		const post = await Message.findById(req.params.id)
+		const post = await BlogPost.findById(req.params.id)
 			.populate('username', 'username')
 			.exec();
 		res.json(post);
@@ -24,7 +23,7 @@ const getMessage = async (req, res, next) => {
 	}
 };
 
-const postMessage = [
+const postBlogPost = [
 	body('title')
 		.trim()
 		.isLength({ min: 3 })
@@ -57,14 +56,14 @@ const postMessage = [
 	},
 ];
 
-const deleteMessage = async (req, res, next) => {
+const deleteBlogPost = async (req, res, next) => {
 	try {
 		await Comment.deleteMany({ post: req.params.id }).exec();
-		await Message.findByIdAndDelete(req.params.id).exec();
+		await BlogPost.findByIdAndDelete(req.params.id).exec();
 		res.json('success');
 	} catch (error) {
 		next(error);
 	}
 };
 
-export { getAllMessages, getMessage, deleteMessage, postMessage };
+export { getAllBlogPosts, getBlogPost, deleteBlogPost, postBlogPost };

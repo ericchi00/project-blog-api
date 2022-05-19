@@ -54,13 +54,13 @@ passport.use(
 		try {
 			const user = await User.findOne({ username });
 			if (!user) {
-				return done(401, false, { message: 'Incorrect username or password' });
+				return done(401, false);
 			}
 
 			if (await bcrypt.compare(password, user.password)) {
 				return done(null, user);
 			}
-			return done(401, false, { message: 'Incorrect username or password' });
+			return done(401, false);
 		} catch (error) {
 			return done(error);
 		}

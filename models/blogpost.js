@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-const messageSchema = new Schema(
+const blogPostSchema = new Schema(
 	{
 		username: { type: Schema.Types.ObjectId, ref: 'User' },
 		title: { type: String, required: true },
@@ -18,10 +18,6 @@ const messageSchema = new Schema(
 	{ timestamps: true }
 );
 
-messageSchema.virtual('url').get(function () {
-	return `/posts/${this._id}`;
-});
+const BlogPost = mongoose.model('BlogPost', blogPostSchema);
 
-const Message = mongoose.model('Message', messageSchema);
-
-export default Message;
+export default BlogPost;

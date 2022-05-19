@@ -6,7 +6,7 @@ const commentSchema = new Schema(
 	{
 		username: { type: Schema.Types.ObjectId, ref: 'User' },
 		text: { type: String, required: true, minlength: 2 },
-		post: { type: Schema.Types.ObjectId, ref: 'Post' },
+		blogPost: { type: Schema.Types.ObjectId, ref: 'BlogPost' },
 	},
 	{ timestamps: true }
 );

@@ -1,24 +1,24 @@
 import { Router } from 'express';
 import passport from 'passport';
 import {
-	deleteMessage,
-	getAllMessages,
-	getMessage,
-	postMessage,
-} from '../controllers/messagecontroller.js';
+	deleteBlogPost,
+	getAllBlogPosts,
+	getBlogPost,
+	postBlogPost,
+} from '../controllers/blogpostcontroller.js';
 
 const router = Router();
 
-router.get('/messages', getAllMessages);
+router.get('/messages', getAllBlogPosts);
 
-router.get('/messages/:id', getMessage);
+router.get('/messages/:id', getBlogPost);
 
 router.post(
 	'/messages',
 	passport.authenticate('jwt', { session: false }),
-	postMessage
+	postBlogPost
 );
 
-router.delete('/messages/:id', deleteMessage);
+router.delete('/messages/:id', deleteBlogPost);
 
 export default router;
