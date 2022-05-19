@@ -6,6 +6,7 @@ import {
 	getBlogPost,
 	postBlogPost,
 } from '../controllers/blogpostcontroller.js';
+import postComment from '../controllers/commentcontroller.js';
 
 const router = Router();
 
@@ -20,5 +21,11 @@ router.post(
 );
 
 router.delete('/blogposts/:id', deleteBlogPost);
+
+router.post(
+	'/blogposts/:id/comments',
+	passport.authenticate('jwt', { session: false }),
+	postComment
+);
 
 export default router;
