@@ -9,16 +9,16 @@ import {
 
 const router = Router();
 
-router.get('/messages', getAllBlogPosts);
+router.get('/blogposts', getAllBlogPosts);
 
-router.get('/messages/:id', getBlogPost);
+router.get('/blogposts/:id', getBlogPost);
 
 router.post(
-	'/messages',
+	'/blogposts',
 	passport.authenticate('jwt', { session: false }),
 	postBlogPost
 );
 
-router.delete('/messages/:id', deleteBlogPost);
+router.delete('/blogposts/:id', deleteBlogPost);
 
 export default router;
