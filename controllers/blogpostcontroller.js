@@ -39,17 +39,16 @@ const postBlogPost = [
 				res.json(errors);
 				return;
 			}
-
 			const cleanText = sanitizeHtml(req.body.text, {
 				allowedTags: false,
 				allowedATtributes: false,
 			});
-			await Message.create({
+			const newBlog = await BlogPost.create({
 				username: req.body.id,
 				title: req.body.title,
 				text: cleanText,
 			});
-			res.json(201);
+			res.json(newBlog._id);
 		} catch (error) {
 			next(error);
 		}
