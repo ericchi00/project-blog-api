@@ -1,6 +1,8 @@
+import sanitizeHtml from 'sanitize-html';
+import mongoose from 'mongoose';
+import { body, validationResult } from 'express-validator';
 import Message from '../models/message.js';
 import Comment from '../models/comment.js';
-import { body, validationResult } from 'express-validator';
 
 const getAllMessages = async (req, res, next) => {
 	try {
@@ -13,11 +15,10 @@ const getAllMessages = async (req, res, next) => {
 
 const getMessage = async (req, res, next) => {
 	try {
-		const [post, comments] = await Promise.all([
-			Message.findById(req.params.id).exec(),
-			Comment.find({ post: req.params.id }).exec(),
-		]);
-		res.json({ post, comments });
+		const post = await Message.findById(req.params.id)
+			.populate('username', 'username')
+			.exec();
+		res.json(post);
 	} catch (error) {
 		next(error);
 	}
@@ -30,9 +31,7 @@ const postMessage = [
 		.escape()
 		.withMessage('Title must be at least 3 characters'),
 	body('text')
-		.trim()
 		.isLength({ min: 3 })
-		.escape()
 		.withMessage('Text must be at least 3 characters'),
 	async (req, res, next) => {
 		try {
@@ -41,10 +40,15 @@ const postMessage = [
 				res.json(errors);
 				return;
 			}
+
+			const cleanText = sanitizeHtml(req.body.text, {
+				allowedTags: false,
+				allowedATtributes: false,
+			});
 			await Message.create({
 				username: req.body.id,
 				title: req.body.title,
-				text: req.body.text,
+				text: cleanText,
 			});
 			res.json(201);
 		} catch (error) {
