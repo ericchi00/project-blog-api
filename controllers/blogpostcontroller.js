@@ -1,7 +1,6 @@
 import sanitizeHtml from 'sanitize-html';
 import { body, validationResult } from 'express-validator';
 import BlogPost from '../models/blogpost.js';
-import Comment from '../models/comment.js';
 
 const getAllBlogPosts = async (req, res, next) => {
 	try {
@@ -16,6 +15,10 @@ const getBlogPost = async (req, res, next) => {
 	try {
 		const post = await BlogPost.findById(req.params.id)
 			.populate('username', 'username')
+			.populate({
+				path: 'comments',
+				populate: { path: 'username', select: 'username' },
+			})
 			.exec();
 		res.json(post);
 	} catch (error) {
