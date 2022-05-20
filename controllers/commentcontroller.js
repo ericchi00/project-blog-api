@@ -1,5 +1,6 @@
 import { body, validationResult } from 'express-validator';
 import BlogPost from '../models/blogpost.js';
+import Comment from '../models/comment.js';
 
 const postComment = [
 	body('comment')
@@ -14,11 +15,16 @@ const postComment = [
 				res.json(errors);
 				return;
 			}
-			await BlogPost.findByIdAndUpdate(req.body.id, {
-				$push: {
-					comments: { username: req.body.username, text: req.body.comment },
-				},
+			const comment = new Comment({
+				username: req.body.username,
+				text: req.body.comment,
+				blogPost: req.body.id,
 			});
+
+			await comment.save();
+			const blogPost = await BlogPost.findById(req.params.id);
+			await blogPost.comments.push(comment);
+			blogPost.save();
 		} catch (error) {
 			console.log('comment', error);
 			next(error);
