@@ -26,7 +26,6 @@ const postComment = [
 			await blogPost.comments.push(comment);
 			blogPost.save();
 		} catch (error) {
-			console.log('comment', error);
 			next(error);
 		}
 	},
