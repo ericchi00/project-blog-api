@@ -97,7 +97,7 @@ app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
 app.all('/', (req, res, next) => {
-	res.redirect(301, '/api/posts');
+	res.redirect(301, '/api/blogposts');
 });
 app.use('/api', apiRouter);
 app.use('/users', userRouter);
