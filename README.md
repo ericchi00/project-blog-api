@@ -2,7 +2,7 @@
 
 https://www.theodinproject.com/lessons/nodejs-blog-api
 
-This is the backend for this project: [React Front End](https://github.com/ericchi00/project-blog-api)
+This is the backend for this project: [React Front End](https://github.com/ericchi00/blog-frontend)
 
 ## Technologies
 
