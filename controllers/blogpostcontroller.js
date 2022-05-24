@@ -65,7 +65,7 @@ const deleteBlogPost = async (req, res, next) => {
 		if (post.comments.length === 0) {
 			return await BlogPost.findByIdAndDelete(req.params.id).exec();
 		}
-		await Comment.deleteMany({ post: req.params.id }).exec();
+		await Comment.deleteMany({ blogPost: req.params.id }).exec();
 		await BlogPost.findByIdAndDelete(req.params.id).exec();
 	} catch (error) {
 		next(error);
