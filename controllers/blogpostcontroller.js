@@ -1,6 +1,7 @@
 import sanitizeHtml from 'sanitize-html';
 import { body, validationResult } from 'express-validator';
 import BlogPost from '../models/blogpost.js';
+import Comment from '../models/comment.js';
 
 const getAllBlogPosts = async (req, res, next) => {
 	try {
@@ -60,9 +61,12 @@ const postBlogPost = [
 
 const deleteBlogPost = async (req, res, next) => {
 	try {
+		const post = await BlogPost.findById(req.params.id).exec();
+		if (post.comments.length === 0) {
+			return await BlogPost.findByIdAndDelete(req.params.id).exec();
+		}
 		await Comment.deleteMany({ post: req.params.id }).exec();
 		await BlogPost.findByIdAndDelete(req.params.id).exec();
-		res.json('success');
 	} catch (error) {
 		next(error);
 	}
