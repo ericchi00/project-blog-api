@@ -25,7 +25,12 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use(logger('dev'));
-cors({ credentials: true, origin: true });
+const corsOptions = {
+	origin: '*',
+	credentials: true,
+	optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
