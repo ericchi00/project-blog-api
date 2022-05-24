@@ -20,7 +20,11 @@ router.post(
 	postBlogPost
 );
 
-router.delete('/blogposts/:id', deleteBlogPost);
+router.delete(
+	'/blogposts/:id',
+	passport.authenticate('jwt', { session: false }),
+	deleteBlogPost
+);
 
 router.post(
 	'/blogposts/:id/comments',
