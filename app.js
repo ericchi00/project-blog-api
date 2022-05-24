@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import logger from 'morgan';
 import mongoose from 'mongoose';
+import session from 'express-session';
 import helmet from 'helmet';
 import compression from 'compression';
 import passport from 'passport';
@@ -31,6 +32,14 @@ app.use(cookieParser());
 
 app.use(helmet());
 app.use(compression());
+
+app.use(
+	session({
+		secret: process.env.SESSION_SECRET,
+		resave: false,
+		saveUninitialized: true,
+	})
+);
 
 passport.use(
 	new LocalStrategy(async (username, password, done) => {
