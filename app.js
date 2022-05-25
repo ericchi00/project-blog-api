@@ -41,6 +41,14 @@ app.use(
 	})
 );
 
+app.use(
+	cors({
+		credentials: true,
+		origin: true,
+	})
+);
+app.options('*', cors());
+
 passport.use(
 	new LocalStrategy(async (username, password, done) => {
 		try {
