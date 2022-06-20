@@ -49,16 +49,16 @@ const postBlogPost = [
 			});
 
 			const post = await BlogPost.findById(req.body.postID);
-			if (post === null) {
-				const blogPost = await BlogPost.create({
-					username: req.body.id,
+			if (post) {
+				const blogPost = await BlogPost.findByIdAndUpdate(req.body.postID, {
 					title: req.body.title,
 					text: cleanText,
 				});
 				return res.status(200).json(blogPost._id);
 			}
-			if (post) {
-				const blogPost = await BlogPost.findByIdAndUpdate({
+			if (post === null) {
+				const blogPost = await BlogPost.create({
+					username: req.body.id,
 					title: req.body.title,
 					text: cleanText,
 				});
