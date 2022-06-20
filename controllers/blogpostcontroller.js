@@ -52,7 +52,7 @@ const postBlogPost = [
 				setDefaultsOnInsert: true,
 			};
 			const blogPost = await BlogPost.findOneAndUpdate(
-				req.body.postID,
+				{ _id: req.body.postID },
 				{
 					username: req.body.id,
 					title: req.body.title,
