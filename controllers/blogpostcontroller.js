@@ -70,7 +70,7 @@ const postBlogPost = [
 const deleteBlogPost = async (req, res, next) => {
 	try {
 		Promise.all([
-			await BlogPost.findByIdAndDelete(req.params.id),
+			await BlogPost.findByIdAndRemove(req.params.id),
 			await Comment.deleteMany({ blogPost: req.params.id }),
 		]);
 		return res.status(200).json({ status: 'success' });
