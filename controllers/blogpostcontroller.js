@@ -6,7 +6,7 @@ import Comment from '../models/comment.js';
 const getAllBlogPosts = async (req, res, next) => {
 	try {
 		const list = await BlogPost.find().populate('username', 'username').exec();
-		res.json(list);
+		return res.status(200).json(list);
 	} catch (error) {
 		next(error);
 	}
@@ -21,7 +21,7 @@ const getBlogPost = async (req, res, next) => {
 				populate: { path: 'username', select: 'username' },
 			})
 			.exec();
-		res.json(post);
+		res.status(200).json(post);
 	} catch (error) {
 		next(error);
 	}
@@ -40,19 +40,27 @@ const postBlogPost = [
 		try {
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
-				res.json(errors);
-				return;
+				return res.status(400).json(errors);
 			}
 			const cleanText = sanitizeHtml(req.body.text, {
 				allowedTags: false,
 				allowedATtributes: false,
 			});
-			const newBlog = await BlogPost.create({
-				username: req.body.id,
-				title: req.body.title,
-				text: cleanText,
-			});
-			res.json(newBlog._id);
+			const options = {
+				upsert: true,
+				new: true,
+				setDefaultsOnInsert: true,
+			};
+			const blogPost = await BlogPost.findOneAndUpdate(
+				req.body.postID,
+				{
+					username: req.body.id,
+					title: req.body.title,
+					text: cleanText,
+				},
+				options
+			);
+			return res.status(200).json(blogPost._id);
 		} catch (error) {
 			next(error);
 		}
