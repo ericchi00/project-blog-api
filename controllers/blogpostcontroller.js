@@ -42,25 +42,28 @@ const postBlogPost = [
 			if (!errors.isEmpty()) {
 				return res.status(400).json(errors);
 			}
+
 			const cleanText = sanitizeHtml(req.body.text, {
 				allowedTags: false,
 				allowedATtributes: false,
 			});
-			const options = {
-				upsert: true,
-				new: true,
-				setDefaultsOnInsert: true,
-			};
-			const blogPost = await BlogPost.findOneAndUpdate(
-				{ _id: req.body.postID },
-				{
+
+			const post = await BlogPost.findById(req.body.postID);
+			if (post === null) {
+				const blogPost = await BlogPost.create({
 					username: req.body.id,
 					title: req.body.title,
 					text: cleanText,
-				},
-				options
-			);
-			return res.status(200).json(blogPost._id);
+				});
+				return res.status(200).json(blogPost._id);
+			}
+			if (post) {
+				const blogPost = await BlogPost.findByIdAndUpdate({
+					title: req.body.title,
+					text: cleanText,
+				});
+				return res.status(200).json(blogPost._id);
+			}
 		} catch (error) {
 			next(error);
 		}
