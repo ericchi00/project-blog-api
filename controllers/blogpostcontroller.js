@@ -71,12 +71,13 @@ const deleteBlogPost = async (req, res, next) => {
 	try {
 		const post = await BlogPost.findById(req.params.id);
 		if (post.comments.length === 0) {
-			return await BlogPost.findByIdAndDelete(req.params.id);
+			await BlogPost.findByIdAndDelete(req.params.id);
+		} else {
+			Promise.all([
+				await Comment.deleteMany({ blogPost: req.params.id }),
+				await BlogPost.findByIdAndDelete(req.params.id),
+			]);
 		}
-		Promise.all([
-			await Comment.deleteMany({ blogPost: req.params.id }),
-			await BlogPost.findByIdAndDelete(req.params.id),
-		]);
 		return res.status(200).json({ status: 'success' });
 	} catch (error) {
 		next(error);
